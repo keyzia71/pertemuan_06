@@ -17,7 +17,12 @@ $action = $_POST['action'] ?? '';
 $id = filter_input(
     INPUT_POST,
     'id',
-    FILTER_VALIDATE_INT
+    FILTER_VALIDATE_INT,
+    [
+        'options' => [
+            'min_range' => 1
+        ]
+    ]
 );
 
 if (
