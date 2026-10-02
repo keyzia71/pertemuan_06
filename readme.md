@@ -33,7 +33,25 @@ Session, Cookie, Flash Message, Git, dan GitHub.
 - Git
 - GitHub
 - XAMPP
+## Pengujian
 
+| No | Pengujian | Hasil |
+|---|---|---|
+| 1 | Membuka halaman utama | Katalog tampil dan keranjang 0 |
+| 2 | Menambahkan produk | Jumlah keranjang bertambah |
+| 3 | Refresh setelah flash | Flash tidak muncul kembali |
+| 4 | Menambahkan dua produk | Total sesuai harga x jumlah |
+| 5 | Menghapus produk | Produk berhasil dihapus |
+| 6 | Mengosongkan keranjang | Keranjang kembali kosong |
+| 7 | ID produk tidak valid | Permintaan ditolak |
+| 8 | Membuka actions.php dengan GET | Dialihkan ke index.php |
+| 9 | Mengubah tema ke Dark | Tema berubah |
+| 10 | Membuka ulang browser | Tema tetap tersimpan |
+| 11 | Memeriksa GitHub | Minimal 10 commit tersedia |
+
+## Bukti Pengujian
+
+Screenshot pengujian aplikasi dan halaman GitHub disertakan sebagai bukti praktikum.
 ## Cara Menjalankan
 
 1. Aktifkan Apache pada XAMPP.
