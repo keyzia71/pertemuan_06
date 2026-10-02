@@ -30,7 +30,7 @@ if (
     $_SESSION['cart'][$id] =
         ($_SESSION['cart'][$id] ?? 0) + 1;
 
-    setFlash('Produk ditambahkan ke keranjang.');
+    setFlash('Produk berhasil dihapus dari keranjang.');
 
 } elseif (
     $action === 'remove'
@@ -47,7 +47,7 @@ if (
 
     $_SESSION['cart'] = [];
 
-    setFlash('Keranjang dikosongkan.');
+    setFlash('semua produk berhasil dihapus dari keranjang.');
 
 } else {
 
