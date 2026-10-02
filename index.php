@@ -1,3 +1,4 @@
+```php
 <?php
 
 declare(strict_types=1);
@@ -7,15 +8,57 @@ require_once __DIR__ . '/functions.php';
 
 $products = require __DIR__ . '/data/products.php';
 
+/*
+|--------------------------------------------------------------------------
+| Tema
+|--------------------------------------------------------------------------
+*/
+
 $theme = $_COOKIE['theme'] ?? 'light';
 
-if (!in_array($theme, ['light', 'dark'], true)) {
-    $theme = 'light';
+$allowedThemes = ['light', 'dark'];
+
+/*
+|--------------------------------------------------------------------------
+| Simpan Tema ke Cookie
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['theme'])
+) {
+    $candidate = $_POST['theme'];
+
+    if (in_array($candidate, $allowedThemes, true)) {
+        setcookie('theme', $candidate, [
+            'expires' => time() + (60 * 60 * 24 * 30),
+            'path' => '/',
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
+        header('Location: index.php');
+        exit;
+    }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Flash Message
+|--------------------------------------------------------------------------
+*/
 
 $flash = pullFlash();
 
-$cartCount = cartCount($_SESSION['cart']);
+/*
+|--------------------------------------------------------------------------
+| Jumlah Produk di Keranjang
+|--------------------------------------------------------------------------
+*/
+
+$cartCount = cartCount($_SESSION['cart'] ?? []);
+
 ?>
 
 <!DOCTYPE html>
@@ -25,10 +68,12 @@ $cartCount = cartCount($_SESSION['cart']);
 
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>Keranjang Belanja</title>
+    <title>Katalog Produk</title>
 
     <style>
 
@@ -39,74 +84,112 @@ $cartCount = cartCount($_SESSION['cart']);
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: <?= $theme === 'dark' ? '#1e1e1e' : '#f5f5f5' ?>;
-            color: <?= $theme === 'dark' ? '#ffffff' : '#222222' ?>;
+
+            background:
+                <?= $theme === 'dark'
+                    ? '#1e1e1e'
+                    : '#f5f5f5' ?>;
+
+            color:
+                <?= $theme === 'dark'
+                    ? '#ffffff'
+                    : '#222222' ?>;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 40px auto;
         }
 
         header {
-            background: <?= $theme === 'dark' ? '#111827' : '#2563eb' ?>;
-            color: white;
-            padding: 20px;
-        }
-
-        header .container {
-            max-width: 1000px;
-            margin: auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
-        main {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
+        h1 {
+            margin: 0;
+        }
+
+        .cart-link {
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: #007bff;
+            color: white;
+        }
+
+        .theme-form {
+            margin-bottom: 25px;
+        }
+
+        .theme-form select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #aaa;
+        }
+
+        .theme-form button {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
         }
 
         .flash {
-            background: #d1fae5;
-            color: #065f46;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 12px 15px;
             margin-bottom: 20px;
+            border-radius: 8px;
+            background: #dff0d8;
+            color: #2d662d;
         }
 
         .products {
             display: grid;
-            grid-template-columns: repeat(
-                auto-fit,
-                minmax(220px, 1fr)
-            );
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
         }
 
-        .card {
-            background: <?= $theme === 'dark' ? '#2d2d2d' : '#ffffff' ?>;
+        .product {
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+
+            background:
+                <?= $theme === 'dark'
+                    ? '#2b2b2b'
+                    : '#ffffff' ?>;
+
+            box-shadow:
+                0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .product h2 {
+            margin-top: 0;
         }
 
         .price {
-            font-weight: bold;
             font-size: 18px;
+            font-weight: bold;
             margin: 15px 0;
         }
 
-        button,
-        .cart-link {
+        .product button {
+            width: 100%;
+            padding: 10px;
             border: none;
-            background: #2563eb;
-            color: white;
-            padding: 10px 15px;
             border-radius: 7px;
+            background: #007bff;
+            color: white;
             cursor: pointer;
-            text-decoration: none;
         }
 
-        button:hover,
-        .cart-link:hover {
-            opacity: 0.85;
+        .product button:hover {
+            background: #0056b3;
         }
 
     </style>
@@ -115,21 +198,21 @@ $cartCount = cartCount($_SESSION['cart']);
 
 <body>
 
-<header>
+<div class="container">
 
-    <div class="container">
+    <header>
 
-        <h1>Keranjang Belanja</h1>
+        <h1>Katalog Produk</h1>
 
-        <a class="cart-link" href="cart.php">
-            🛒 Keranjang (<?= $cartCount ?>)
+        <a
+            href="cart.php"
+            class="cart-link"
+        >
+            Keranjang (<?= $cartCount ?>)
         </a>
 
-    </div>
+    </header>
 
-</header>
-
-<main>
 
     <?php if ($flash !== null): ?>
 
@@ -139,28 +222,74 @@ $cartCount = cartCount($_SESSION['cart']);
 
     <?php endif; ?>
 
-    <h2>Daftar Produk</h2>
+
+    <!-- Pilihan Tema -->
+
+    <form
+        method="POST"
+        class="theme-form"
+    >
+
+        <label for="theme">
+            Pilih Tema:
+        </label>
+
+        <select
+            name="theme"
+            id="theme"
+        >
+
+            <option
+                value="light"
+                <?= $theme === 'light' ? 'selected' : '' ?>
+            >
+                Light
+            </option>
+
+            <option
+                value="dark"
+                <?= $theme === 'dark' ? 'selected' : '' ?>
+            >
+                Dark
+            </option>
+
+        </select>
+
+        <button type="submit">
+            Simpan Tema
+        </button>
+
+    </form>
+
+
+    <!-- Daftar Produk -->
 
     <div class="products">
 
         <?php foreach ($products as $id => $product): ?>
 
-            <div class="card">
+            <div class="product">
 
-                <h3>
+                <h2>
                     <?= e($product['nama']) ?>
-                </h3>
+                </h2>
 
                 <div class="price">
-                    Rp <?= number_format(
+
+                    Rp
+                    <?= number_format(
                         $product['harga'],
                         0,
                         ',',
                         '.'
                     ) ?>
+
                 </div>
 
-                <form action="actions.php" method="post">
+                <form
+                    action="actions.php"
+                    method="POST"
+                >
 
                     <input
                         type="hidden"
@@ -186,8 +315,9 @@ $cartCount = cartCount($_SESSION['cart']);
 
     </div>
 
-</main>
+</div>
 
 </body>
 
 </html>
+```
